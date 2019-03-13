@@ -88,7 +88,7 @@ def classify_sequence(new_sample_path, template_chords):
     # compute chromagram for each bin
 
     signal, sr = librosa.load(new_sample_path, sr=None)
-    onset_frames = librosa.onset.onset_detect(y=signal, sr=sr)
+    onset_frames = librosa.onset.onset_detect(y=signal, sr=sr, hop_length=512) * 512
     number_of_frames = onset_frames.shape[0] + 1
 
     chroma = np.empty((12, number_of_frames))
@@ -108,6 +108,7 @@ def classify_sequence(new_sample_path, template_chords):
         index = new_index
 
     chroma[:, n] = np.mean(librosa.feature.chroma_stft(signal[index:], sr=sr), axis=1)
+    n += 1
 
     # classify each bin
 
@@ -280,4 +281,5 @@ if __name__ == '__main__':
 
     tc, tc2 = template_prep()
 
-    print(classify_sequence('wav_files/chords_piano_equal.wav', tc))
+    print(str(classify_sequence('wav_files/chords_piano_equal.wav', tc)) + " (actual)")
+    print("['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm', 'Cm'] (expected)")
