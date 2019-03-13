@@ -83,6 +83,48 @@ def classify2(new_sample_path, template_chords, percent_to_examine):
     return max_classes
 
 
+def classify_sequence(new_sample_path, template_chords):
+
+    # compute chromagram for each bin
+
+    signal, sr = librosa.load(new_sample_path, sr=None)
+    onset_frames = librosa.onset.onset_detect(y=signal, sr=sr)
+    number_of_frames = onset_frames.shape[0] + 1
+
+    chroma = np.empty((12, number_of_frames))
+
+    index = 0
+    n = 0
+    for new_index in list(onset_frames):
+
+        chroma[:, n] = np.mean(librosa.feature.chroma_stft(signal[index:new_index], sr=sr), axis=1)
+
+        if np.all(chroma[:, n] == 0):
+            chroma[:, n] = np.finfo(float).eps
+        else:
+            chroma[:, n] /= np.max(np.absolute(chroma[:, n]))
+
+        n += 1
+        index = new_index
+
+    chroma[:, n] = np.mean(librosa.feature.chroma_stft(signal[index:], sr=sr), axis=1)
+
+    # classify each bin
+
+    max_classes = ["default"] * n
+
+    for i in range(n):
+        max_sim = 0.0
+
+        for chord, template in template_chords.items():
+            s = np.abs(np.inner(chroma[:,i], template) / (np.linalg.norm(chroma[:,i]) * np.linalg.norm(template)))
+            if s > max_sim:
+                max_sim = s
+                max_classes[i] = chord
+
+    return max_classes
+
+
 def mode_classify(new_sample_path, template_chords):
 
     return mode(classify2(new_sample_path, template_chords, 0.75))
@@ -233,4 +275,9 @@ if __name__ == '__main__':
     print(mode_classify('wav_files/C#_recorder.wav', tc2) + '   expected: C#')
     print(mode_classify('wav_files/D#_recorder.wav', tc2) + '   expected: D#')
     print(mode_classify('wav_files/F_brassy.wav', tc2) + '   expected: F')
-    print(mode_classify('wav_files/fm_brass.wav', tc2) + '   expected: Fm')
+
+    print("Chord Sequence")
+
+    tc, tc2 = template_prep()
+
+    print(classify_sequence('wav_files/chords_piano_equal.wav', tc))
