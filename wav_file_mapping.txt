@@ -4,9 +4,9 @@
 3 a#m_guitar
 4 B_guitar
 5 bm_guitar
-6 C_guitar
-7 cm_guitar
-8 C#_guitar
+6 C_guitar (Chord at C4)
+7 cm_guitar 
+8 C#_guitar (Chord at C3)
 9 c#m_guitar
 10 D_guitar
 11 dm_guitar
@@ -22,3 +22,26 @@
 21 gm_guitar
 22 G#_guitar
 23 g#m_guitar
+24 A_synth_37th_street
+25 am_synth_37th_street
+26 B_synth_37th_street
+27 bm_synth_37th_street
+28 G_synth_37th_street
+29 gm_synth_37th_street
+30 em_synth
+31 C_recorder
+32 cm_recorder
+33 C#_recorder
+34 C#_recorder (Chord at C4 instead of C3)
+35 c#m_recorder
+36 D_recorder
+37 dm_recorder
+38 D#_recorder
+39 d#m_recorder
+40 E_recorder
+41 em_recorder
+42 C_electric_guitar
+43 cm_electric_guitar
+44 D_electric_guitar
+45 E_electric_guitar
+46 C#_guitar (Chord at C4 instead of C3)
