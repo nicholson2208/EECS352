@@ -1,47 +1,47 @@
-0 A_guitar
-1 am_guitar
-2 A#_guitar
-3 a#m_guitar
-4 B_guitar
-5 bm_guitar
-6 C_guitar (Chord at C4)
-7 cm_guitar 
-8 C#_guitar (Chord at C3)
-9 c#m_guitar
-10 D_guitar
-11 dm_guitar
-12 D#_guitar
-13 d#m_guitar
-14 E_guitar
-15 em_guitar
-16 F_guitar
-17 fm_guitar
-18 F#_guitar
-19 f#m_guitar
-20 G_guitar
-21 gm_guitar
-22 G#_guitar
-23 g#m_guitar
-24 A_synth_37th_street
-25 am_synth_37th_street
-26 B_synth_37th_street
-27 bm_synth_37th_street
-28 G_synth_37th_street
-29 gm_synth_37th_street
-30 em_synth
-31 C_recorder
-32 cm_recorder
-33 C#_recorder
-34 C#_recorder (Chord at C4 instead of C3)
-35 c#m_recorder
-36 D_recorder
-37 dm_recorder
-38 D#_recorder
-39 d#m_recorder
-40 E_recorder
-41 em_recorder
-42 C_electric_guitar
-43 cm_electric_guitar
-44 D_electric_guitar
-45 E_electric_guitar
-46 C#_guitar (Chord at C4 instead of C3)
+0 A guitar
+1 am guitar
+2 A# guitar
+3 a#m guitar
+4 B guitar
+5 bm guitar
+6 C guitar (Chord at C4)
+7 cm guitar 
+8 C# guitar (Chord at C3)
+9 c#m guitar
+10 D guitar
+11 dm guitar
+12 D# guitar
+13 d#m guitar
+14 E guitar
+15 em guitar
+16 F guitar
+17 fm guitar
+18 F# guitar
+19 f#m guitar
+20 G guitar
+21 gm guitar
+22 G# guitar
+23 g#m guitar
+24 A synth_37th_street
+25 am synth_37th_street
+26 B synth_37th_street
+27 bm synth_37th_street
+28 G synth_37th_street
+29 gm synth_37th_street
+30 em synth
+31 C recorder
+32 cm recorder
+33 C# recorder
+34 C# recorder (Chord at C4 instead of C3)
+35 c#m recorder
+36 D recorder
+37 dm recorder
+38 D# recorder
+39 d#m recorder
+40 E recorder
+41 em recorder
+42 C electric_guitar
+43 cm electric_guitar
+44 D electric_guitar
+45 E electric_guitar
+46 C# guitar (Chord at C4 instead of C3)
