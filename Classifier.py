@@ -19,7 +19,7 @@ def template_prep(guitar=""):
         chord = chord.lower()
         audio, sr = librosa.load("wav_files/" + chord + "m" + guitar + ".wav", sr=None)
         template_chords_means[chord + 'm'] = np.mean(librosa.feature.chroma_stft(audio, sr=sr), axis=1)
-        template_chords[chord] = librosa.feature.chroma_stft(audio, sr=sr)
+        template_chords[chord + 'm'] = librosa.feature.chroma_stft(audio, sr=sr)
 
     return template_chords_means, template_chords
 
@@ -84,7 +84,7 @@ def frame_classify(new_sample_path, template_chords, percent_to_examine):
 
 
 def mode_classify(new_sample_path, template_chords):
-    return mode(frame_classify(new_sample_path, template_chords, .75))
+    return mode(frame_classify(new_sample_path, template_chords, .50))
 
 
 def accuracy(expected, classify, tc):
@@ -101,12 +101,12 @@ def accuracy(expected, classify, tc):
     return correct / (n - len(skip)), actual
 
 
-def classify_sequence(new_sample_path, template_chords):
+def classify_sequence(new_sample_path, template_chords, hl):
 
     # compute chromagram for each bin
 
     signal, sr = librosa.load(new_sample_path, sr=None)
-    onset_frames = librosa.onset.onset_detect(y=signal, sr=sr, hop_length=512) * 512
+    onset_frames = librosa.onset.onset_detect(y=signal, sr=sr, hop_length=hl) * hl
     number_of_frames = onset_frames.shape[0] + 1
 
     chroma = np.empty((12, number_of_frames))
@@ -168,17 +168,16 @@ if __name__ == '__main__':
     print(mode_classify('wav_files/F#.wav', tc_frames) + '   expected: F#')
     mode_results = accuracy(test_data[0], mode_classify, tc_frames)
     print("accuracy: " + str(mode_results[0]))
-    print("THERE IS A PROBLEM WITH MINOR CHORDS HERE")  # TODO
     print(mode_results[1])
 
     print("Chord Sequence")
 
-    print(str(classify_sequence('wav_files/handmade_sequences/chords_piano_equal.wav', tc_means)) + " (actual)")
+    print(str(classify_sequence('wav_files/handmade_sequences/chords_piano_equal.wav', tc_means, 512)) + " (actual)")
     print("['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm', 'Cm'] (expected)")
 
     print("Nottingham")
-    
-    print("(ashover) " + str(classify_sequence('wav_files/Nottingham/ashover1.wav', tc_means)))
-    print("(hpps) " + str(classify_sequence('wav_files/Nottingham/hpps1.wav', tc_means)))
-    print("(jigs) " + str(classify_sequence('wav_files/Nottingham/jigs1.wav', tc_means)))
+
+    print("(ashover) " + str(classify_sequence('wav_files/Nottingham/ashover1.wav', tc_means, 2048)))
+    print("(hpps) " + str(classify_sequence('wav_files/Nottingham/hpps1.wav', tc_means, 2048)))
+    print("(jigs) " + str(classify_sequence('wav_files/Nottingham/jigs1.wav', tc_means, 2048)))
 
