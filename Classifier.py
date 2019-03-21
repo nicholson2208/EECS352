@@ -68,17 +68,17 @@ def frame_classify(new_sample_path, template_chords, percent_to_examine):
 
     n = int(math.floor(np.shape(new_chroma)[1] * percent_to_examine))
 
-    max_classes = []
+    max_classes = ['default'] * n
 
     for t in range(n):
-        max_sim = 0.0
 
+        max_sim = 0.0
         for chord, chroma in template_chords.items():
-            if t < np.shape(chroma)[1]:
-                s = np.abs(np.inner(new_chroma[:, t], chroma[:, t]) / (np.linalg.norm(new_chroma[:, t]) * np.linalg.norm(chroma[:, t])))
-                if s > max_sim:
-                    max_sim = s
-                    max_classes.append(chord)
+            s = np.abs(np.inner(new_chroma[:, t], chroma[:, t]) / (
+                        np.linalg.norm(new_chroma[:, t]) * np.linalg.norm(chroma[:, t])))
+            if s > max_sim:
+                max_sim = s
+                max_classes[t] = chord
 
     return max_classes
 
@@ -88,20 +88,17 @@ def mode_classify(new_sample_path, template_chords):
 
 
 def accuracy(expected, classify, tc):
+    skip = ['24', '25', '26', '27', '28', '29', '30', '33', '43']
     correct = 0
-    n = len(expected) - 7
+    n = len(expected)
     actual = []
-    for i in range(24):
-        new = classify("wav_files/" + str(i) + ".wav", tc)
-        if new == expected[i]:
-            correct += 1
-        actual.append(new)
-    for i in range(31, 47):
-        new = classify("wav_files/" + str(i) + ".wav", tc)
-        if new == expected[i]:
-            correct += 1
-        actual.append(new)
-    return correct / n, actual
+    for i in range(n):
+        if str(i) not in skip:
+            new = classify("wav_files/" + str(i) + ".wav", tc)
+            if new == expected[i]:
+                correct += 1
+            actual.append(new)
+    return correct / (n - len(skip)), actual
 
 
 def classify_sequence(new_sample_path, template_chords):
@@ -167,13 +164,21 @@ if __name__ == '__main__':
     print("Majority Vote")
 
     print(mode_classify('wav_files/A.wav', tc_frames) + '   expected: A')
-#     print(mode_classify('wav_files/DM.wav', tc_frames) + '   expected: Dm')
-#     print(mode_classify('wav_files/F#.wav', tc_frames) + '   expected: F#')
+    print(mode_classify('wav_files/DM.wav', tc_frames) + '   expected: Dm')
+    print(mode_classify('wav_files/F#.wav', tc_frames) + '   expected: F#')
     mode_results = accuracy(test_data[0], mode_classify, tc_frames)
     print("accuracy: " + str(mode_results[0]))
+    print("THERE IS A PROBLEM WITH MINOR CHORDS HERE")  # TODO
     print(mode_results[1])
 
     print("Chord Sequence")
 
     print(str(classify_sequence('wav_files/handmade_sequences/chords_piano_equal.wav', tc_means)) + " (actual)")
     print("['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm', 'Cm'] (expected)")
+
+    print("Nottingham")
+    
+    print("(ashover) " + str(classify_sequence('wav_files/Nottingham/ashover1.wav', tc_means)))
+    print("(hpps) " + str(classify_sequence('wav_files/Nottingham/hpps1.wav', tc_means)))
+    print("(jigs) " + str(classify_sequence('wav_files/Nottingham/jigs1.wav', tc_means)))
+
