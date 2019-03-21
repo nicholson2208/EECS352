@@ -4,7 +4,7 @@
 3 a#m guitar
 4 B guitar
 5 bm guitar
-6 C guitar (Chord at C4)
+6 C guitar (Chord at C3)
 7 cm guitar 
 8 C# guitar (Chord at C3)
 9 c#m guitar
@@ -23,15 +23,15 @@
 22 G# guitar
 23 g#m guitar
 24 A synth_37th_street
-25 am synth_37th_street
+25 am synth_37th_street (wrong? actually AM?)
 26 B synth_37th_street
 27 bm synth_37th_street
 28 G synth_37th_street
-29 gm synth_37th_street
+29 gm synth_37th_street (wrong? actually GM?)
 30 em synth
 31 C recorder
 32 cm recorder
-33 C# recorder
+33 C# recorder (broken)
 34 C# recorder (Chord at C4 instead of C3)
 35 c#m recorder
 36 D recorder
@@ -41,7 +41,8 @@
 40 E recorder
 41 em recorder
 42 C electric_guitar
-43 cm electric_guitar
+43 cm electric_guitar (broken)
 44 D electric_guitar
 45 E electric_guitar
 46 C# guitar (Chord at C4 instead of C3)
+47 C guitar (Chord at C4)
