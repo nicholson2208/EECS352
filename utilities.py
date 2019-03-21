@@ -20,23 +20,20 @@ def create_wav_file_mapping(file_name):
             chord_dict = {"name" : chord_name, "instrument" : instrument}
             
             mapping[str(chord_num)] = chord_dict
-        
     
     return mapping
     
 
-def get_chord_name(chord_list_numbers, mapping):
+def get_chord_name(mapping, n):
     """
     
     returns : (chord_name_list, instrument_name_list)
     """
     chord_name_list = []
     instrument_name_list = []
-       
-    
-    for chord_nums in chord_list_numbers:
+
+    for chord_nums in range(n):
         chord_name_list.append(mapping[str(chord_nums)]["name"])
         instrument_name_list.append(mapping[str(chord_nums)]["instrument"])
-    
-    
+
     return chord_name_list, instrument_name_list
