@@ -1,8 +1,7 @@
-import IPython, numpy as np, scipy as sp, matplotlib.pyplot as plt, matplotlib, sklearn, librosa, cmath,math, csv
+import numpy as np
+import math
 import librosa
 from statistics import mode
-from IPython.display import Audio
-from sklearn.datasets import load_iris
 import utilities as util
 
 
@@ -13,13 +12,12 @@ def template_prep(guitar=""):
 
     for chord in chords:
         audio, sr = librosa.load("wav_files/" + chord + guitar + ".wav", sr=None)
-        # print(np.shape(librosa.feature.chroma_stft(audio, sr=sr)))
         template_chords_means[chord] = np.mean(librosa.feature.chroma_stft(audio, sr=sr), axis=1)
         template_chords[chord] = librosa.feature.chroma_stft(audio, sr=sr)
 
     for chord in chords:
-        audio, sr = librosa.load("wav_files/" + chord.lower() + "m" + guitar + ".wav", sr=None)
-        # print(np.shape(librosa.feature.chroma_stft(audio, sr=sr)))
+        chord = chord.lower()
+        audio, sr = librosa.load("wav_files/" + chord + "m" + guitar + ".wav", sr=None)
         template_chords_means[chord + 'm'] = np.mean(librosa.feature.chroma_stft(audio, sr=sr), axis=1)
         template_chords[chord] = librosa.feature.chroma_stft(audio, sr=sr)
 
@@ -32,8 +30,8 @@ def template_prep_combined():
     template_chords = {}
 
     for chord in chords:
-        audio1, sr = librosa.load("wav_files/" + chord + ".wav", sr=None)
-        audio2, sr = librosa.load("wav_files/" + chord + "_guitar.wav", sr=None)
+        audio1, sr = librosa.load("wav_files/" + chord.lower() + ".wav", sr=None)
+        audio2, sr = librosa.load("wav_files/" + chord.lower() + "_guitar.wav", sr=None)
         template_chords[chord] = (librosa.feature.chroma_stft(audio1, sr=sr) + librosa.feature.chroma_stft(audio2, sr=sr)) / 2
         template_chords_means[chord] = np.mean(template_chords[chord], axis=1)
 
@@ -70,34 +68,39 @@ def frame_classify(new_sample_path, template_chords, percent_to_examine):
 
     n = int(math.floor(np.shape(new_chroma)[1] * percent_to_examine))
 
-    max_classes = ["default"] * n
+    max_classes = []
 
     for t in range(n):
         max_sim = 0.0
 
         for chord, chroma in template_chords.items():
-            s = np.abs(np.inner(new_chroma[:,t], chroma[:,t]) / (np.linalg.norm(new_chroma[:,t]) * np.linalg.norm(chroma[:,t])))
-            if s > max_sim:
-                max_sim = s
-                max_classes[t] = chord
+            if t < np.shape(chroma)[1]:
+                s = np.abs(np.inner(new_chroma[:, t], chroma[:, t]) / (np.linalg.norm(new_chroma[:, t]) * np.linalg.norm(chroma[:, t])))
+                if s > max_sim:
+                    max_sim = s
+                    max_classes.append(chord)
 
     return max_classes
 
 
 def mode_classify(new_sample_path, template_chords):
-
-    return mode(frame_classify(new_sample_path, template_chords, 0.75))
+    return mode(frame_classify(new_sample_path, template_chords, .75))
 
 
 def accuracy(expected, classify, tc):
     correct = 0
-    n = len(expected)
-    actual = ["default"] * n
-    for i in range(n):
+    n = len(expected) - 7
+    actual = []
+    for i in range(24):
         new = classify("wav_files/" + str(i) + ".wav", tc)
         if new == expected[i]:
             correct += 1
-        actual[i] = new
+        actual.append(new)
+    for i in range(31, 47):
+        new = classify("wav_files/" + str(i) + ".wav", tc)
+        if new == expected[i]:
+            correct += 1
+        actual.append(new)
     return correct / n, actual
 
 
@@ -147,7 +150,7 @@ def classify_sequence(new_sample_path, template_chords):
 if __name__ == '__main__':
 
     mapping = util.create_wav_file_mapping("wav_file_mapping.txt")
-    expected = util.get_chord_name(mapping, 24)[0]
+    test_data = util.get_chord_name(mapping, 47)
     tc_means, tc_frames = template_prep()
 
     print("Mean")
@@ -155,17 +158,22 @@ if __name__ == '__main__':
     print(mean_classify('wav_files/A.wav', tc_means) + '   expected: A')
     print(mean_classify('wav_files/DM.wav', tc_means) + '   expected: Dm')
     print(mean_classify('wav_files/F#.wav', tc_means) + '   expected: F#')
-    mean_results = accuracy(expected, mean_classify, tc_means)
-    print(mean_results)
+    mean_results = accuracy(test_data[0], mean_classify, tc_means)
+    print("accuracy: " + str(mean_results[0]))
+    print(mean_results[1])
+    print(test_data[0])
+    print(test_data[1])
 
     print("Majority Vote")
 
     print(mode_classify('wav_files/A.wav', tc_frames) + '   expected: A')
-    print(mode_classify('wav_files/DM.wav', tc_frames) + '   expected: Dm')
-    print(mode_classify('wav_files/F#.wav', tc_frames) + '   expected: F#')
-    mode_results = accuracy(expected, mode_classify)
+#     print(mode_classify('wav_files/DM.wav', tc_frames) + '   expected: Dm')
+#     print(mode_classify('wav_files/F#.wav', tc_frames) + '   expected: F#')
+    mode_results = accuracy(test_data[0], mode_classify, tc_frames)
+    print("accuracy: " + str(mode_results[0]))
+    print(mode_results[1])
 
     print("Chord Sequence")
 
-    print(str(classify_sequence('wav_files/chords_piano_equal.wav', tc_means)) + " (actual)")
+    print(str(classify_sequence('wav_files/handmade_sequences/chords_piano_equal.wav', tc_means)) + " (actual)")
     print("['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm', 'Cm'] (expected)")

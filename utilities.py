@@ -12,7 +12,7 @@ def create_wav_file_mapping(file_name):
         
         for line in lines:            
             broken_line = line.split()
-            
+
             chord_num = broken_line[0]
             chord_name = broken_line[1]
             instrument = broken_line[2]          
