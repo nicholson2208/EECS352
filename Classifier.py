@@ -147,7 +147,7 @@ def classify_sequence(new_sample_path, template_chords, hl):
 if __name__ == '__main__':
 
     mapping = util.create_wav_file_mapping("wav_file_mapping.txt")
-    test_data = util.get_chord_name(mapping, 47)
+    test_data = util.get_chord_name(mapping, 48)
     tc_means, tc_frames = template_prep()
 
     print("Mean")
@@ -172,12 +172,40 @@ if __name__ == '__main__':
 
     print("Chord Sequence")
 
-    print(str(classify_sequence('wav_files/handmade_sequences/chords_piano_equal.wav', tc_means, 512)) + " (actual)")
-    print("['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm', 'Cm'] (expected)")
+    cpe = classify_sequence('wav_files/handmade_sequences/chords_original_piano.wav', tc_means, 512)
+    print(str(cpe) + " (actual)")
+    print("['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'cm', 'dm', 'em', 'fm', 'gm', 'am', 'bm', 'cm'] (expected)")
+
+    count = 0
+    e = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'cm', 'dm', 'em', 'fm', 'gm', 'am', 'bm', 'cm']
+    for i in range(len(e)):
+        if cpe[i] == e[i]:
+            count += 1
+    print(str(count) + " / " + str(len(e)) + "     " + str(count / len(e)))
+
+    cpe = classify_sequence('wav_files/handmade_sequences/chords_piano_equal.wav', tc_means, 512)
+    print(str(cpe) + " (actual)")
+    print("['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'cm', 'dm', 'em', 'fm', 'gm', 'am', 'bm', 'cm'] (expected)")
+
+    count = 0
+    e = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'cm', 'dm', 'em', 'fm', 'gm', 'am', 'bm', 'cm']
+    for i in range(len(e)):
+        if cpe[i] == e[i]:
+            count += 1
+    print(str(count) + " / " + str(len(e)) + "     " + str(count / len(e)))
 
     print("Nottingham")
 
-    print("(ashover) " + str(classify_sequence('wav_files/Nottingham/ashover1.wav', tc_means, 2048)))
-    print("(hpps) " + str(classify_sequence('wav_files/Nottingham/hpps1.wav', tc_means, 2048)))
-    print("(jigs) " + str(classify_sequence('wav_files/Nottingham/jigs1.wav', tc_means, 2048)))
+    cpe = str(classify_sequence('wav_files/Nottingham/ashover1.wav', tc_means, 512))
+    print("(ashover) " + str(classify_sequence('wav_files/Nottingham/ashover1.wav', tc_means, 512)))
+    count = 0
+    actual = ['G', 'D', 'G', 'D', 'G', 'D', 'F', 'G', 'G', 'D', 'G', 'D', 'G', 'D', 'F', 'G', 'C', 'Bb', 'F', 'C', 'Bb',
+              'F', 'G', 'C', 'Bb', 'F', 'C', 'Bb', 'F', 'G']
+    for i in range(len(actual)):
+        if cpe[i + 1] == actual[i]:
+            count += 1
+    print(str(count) + " / " + str(len(actual)))
+
+    print("(hpps) " + str(classify_sequence('wav_files/Nottingham/hpps1.wav', tc_means, 512)))
+    print("(jigs) " + str(classify_sequence('wav_files/Nottingham/jigs1.wav', tc_means, 512)))
 
