@@ -14,9 +14,9 @@ def create_wav_file_mapping(file_name):
             broken_line = line.split()
             
             chord_num = broken_line[0]
-            
-            chord_name, instrument = broken_line[1].split("_")
-            
+            chord_name = broken_line[1]
+            instrument = broken_line[2]          
+
             chord_dict = {"name" : chord_name, "instrument" : instrument}
             
             mapping[str(chord_num)] = chord_dict
