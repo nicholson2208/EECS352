@@ -3,6 +3,7 @@ import librosa
 from statistics import mode
 from IPython.display import Audio
 from sklearn.datasets import load_iris
+import utilities as util
 
 
 def template_prep(guitar=""):
@@ -17,7 +18,7 @@ def template_prep(guitar=""):
         template_chords[chord] = librosa.feature.chroma_stft(audio, sr=sr)
 
     for chord in chords:
-        audio, sr = librosa.load("wav_files/" + chord + "m" + guitar + ".wav", sr=None)
+        audio, sr = librosa.load("wav_files/" + chord.lower() + "m" + guitar + ".wav", sr=None)
         # print(np.shape(librosa.feature.chroma_stft(audio, sr=sr)))
         template_chords_means[chord + 'm'] = np.mean(librosa.feature.chroma_stft(audio, sr=sr), axis=1)
         template_chords[chord] = librosa.feature.chroma_stft(audio, sr=sr)
@@ -37,15 +38,15 @@ def template_prep_combined():
         template_chords_means[chord] = np.mean(template_chords[chord], axis=1)
 
     for chord in chords:
-        audio1, sr = librosa.load("wav_files/" + chord + "m.wav", sr=None)
-        audio2, sr = librosa.load("wav_files/" + chord + "m_guitar.wav", sr=None)
+        audio1, sr = librosa.load("wav_files/" + chord.lower() + "m.wav", sr=None)
+        audio2, sr = librosa.load("wav_files/" + chord.lower() + "m_guitar.wav", sr=None)
         template_chords[chord] = (librosa.feature.chroma_stft(audio1, sr=sr) + librosa.feature.chroma_stft(audio2, sr=sr)) / 2
         template_chords_means[chord] = np.mean(template_chords[chord], axis=1)
 
     return template_chords_means, template_chords
 
 
-def classify(new_sample_path, template_chords):
+def mean_classify(new_sample_path, template_chords):
 
     audio, sr = librosa.load(new_sample_path, sr=None)
     new_chroma = np.mean(librosa.feature.chroma_stft(audio, sr=sr), axis=1)
@@ -62,7 +63,7 @@ def classify(new_sample_path, template_chords):
     return max_class
 
 
-def classify2(new_sample_path, template_chords, percent_to_examine):
+def frame_classify(new_sample_path, template_chords, percent_to_examine):
 
     audio, sr = librosa.load(new_sample_path, sr=None)
     new_chroma = librosa.feature.chroma_stft(audio, sr=sr)
@@ -81,6 +82,23 @@ def classify2(new_sample_path, template_chords, percent_to_examine):
                 max_classes[t] = chord
 
     return max_classes
+
+
+def mode_classify(new_sample_path, template_chords):
+
+    return mode(frame_classify(new_sample_path, template_chords, 0.75))
+
+
+def accuracy(expected, classify, tc):
+    correct = 0
+    n = len(expected)
+    actual = ["default"] * n
+    for i in range(n):
+        new = classify("wav_files/" + str(i) + ".wav", tc)
+        if new == expected[i]:
+            correct += 1
+        actual[i] = new
+    return correct / n, actual
 
 
 def classify_sequence(new_sample_path, template_chords):
@@ -126,160 +144,28 @@ def classify_sequence(new_sample_path, template_chords):
     return max_classes
 
 
-def mode_classify(new_sample_path, template_chords):
-
-    return mode(classify2(new_sample_path, template_chords, 0.75))
-
-
 if __name__ == '__main__':
 
-    tc, tc2 = template_prep()
-
-    # print(classify('wav_files/A.wav', tc) + '   expected: A')
-    # print(classify('wav_files/DM.wav', tc) + '   expected: Dm')
-    # print(classify('wav_files/C_electric_guitar.wav', tc) + '   expected: C')
-    # print(classify('wav_files/D_electric_guitar.wav', tc) + '   expected: D')
-    # print(classify('wav_files/E_electric_guitar.wav', tc) + '   expected: E')
-    #
-    # print(classify('wav_files/G_synth_37th_street.wav', tc) + '   expected: G')
-    # print(classify('wav_files/A_synth_37th_street.wav', tc) + '   expected: A')
-    # print(classify('wav_files/B_synth_37th_street.wav', tc) + '   expected: B')
-    #
-    # print(classify2('wav_files/AM.wav', tc2))
-    # print('expected: Am')
-    # print(classify2('wav_files/D_electric_guitar.wav', tc2))
-    # print('expected: D')
-    # print(classify2('wav_files/E_electric_guitar.wav', tc2))
-    # print('expected: E')
-    # print(classify2('wav_files/G_synth_37th_street.wav', tc2))
-    # print('expected: G')
-    # print(classify2('wav_files/A_synth_37th_street.wav', tc2))
-    # print('expected: A')
+    mapping = util.create_wav_file_mapping("wav_file_mapping.txt")
+    expected = util.get_chord_name(mapping, 24)[0]
+    tc_means, tc_frames = template_prep()
 
     print("Mean")
 
-    print(classify('wav_files/A.wav', tc) + '   expected: A')
-    print(classify('wav_files/DM.wav', tc) + '   expected: Dm')
-    print(classify('wav_files/F#.wav', tc) + '   expected: F#')
-    print(classify('wav_files/C_electric_guitar.wav', tc) + '   expected: C')
-    print(classify('wav_files/D_electric_guitar.wav', tc) + '   expected: D')
-    print(classify('wav_files/E_electric_guitar.wav', tc) + '   expected: E')
-    print(classify('wav_files/C_recorder.wav', tc) + '   expected: C')
-    print(classify('wav_files/D_recorder.wav', tc) + '   expected: D')
-    print(classify('wav_files/E_recorder.wav', tc) + '   expected: E')
-    print(classify('wav_files/cm_recorder.wav', tc) + '   expected: Cm')
-    print(classify('wav_files/dm_recorder.wav', tc) + '   expected: Dm')
-    print(classify('wav_files/em_recorder.wav', tc) + '   expected: Em')
-    print(classify('wav_files/C#_recorder.wav', tc) + '   expected: C#')
-    print(classify('wav_files/D#_recorder.wav', tc) + '   expected: D#')
-    print(classify('wav_files/F_brassy.wav', tc) + '   expected: F')
-    print(classify('wav_files/fm_brass.wav', tc) + '   expected: Fm')
+    print(mean_classify('wav_files/A.wav', tc_means) + '   expected: A')
+    print(mean_classify('wav_files/DM.wav', tc_means) + '   expected: Dm')
+    print(mean_classify('wav_files/F#.wav', tc_means) + '   expected: F#')
+    mean_results = accuracy(expected, mean_classify, tc_means)
+    print(mean_results)
 
     print("Majority Vote")
 
-    print(mode_classify('wav_files/A.wav', tc2) + '   expected: A')
-    print(mode_classify('wav_files/DM.wav', tc2) + '   expected: Dm')
-    print(mode_classify('wav_files/F#.wav', tc2) + '   expected: F#')
-    print(mode_classify('wav_files/C_electric_guitar.wav', tc2) + '   expected: C')
-    print(mode_classify('wav_files/D_electric_guitar.wav', tc2) + '   expected: D')
-    print(mode_classify('wav_files/E_electric_guitar.wav', tc2) + '   expected: E')
-    print(mode_classify('wav_files/C_recorder.wav', tc2) + '   expected: C')
-    print(mode_classify('wav_files/D_recorder.wav', tc2) + '   expected: D')
-    print(mode_classify('wav_files/E_recorder.wav', tc2) + '   expected: E')
-    print(mode_classify('wav_files/cm_recorder.wav', tc2) + '   expected: Cm')
-    print(mode_classify('wav_files/dm_recorder.wav', tc2) + '   expected: Dm')
-    print(mode_classify('wav_files/em_recorder.wav', tc2) + '   expected: Em')
-    print(mode_classify('wav_files/C#_recorder.wav', tc2) + '   expected: C#')
-    print(mode_classify('wav_files/D#_recorder.wav', tc2) + '   expected: D#')
-    print(mode_classify('wav_files/F_brassy.wav', tc2) + '   expected: F')
-    print(mode_classify('wav_files/fm_brass.wav', tc2) + '   expected: Fm')
-
-    print("Guitar Template Data")
-
-    tc, tc2 = template_prep("_guitar")
-
-    print("Mean")
-
-    print(classify('wav_files/A.wav', tc) + '   expected: A')
-    print(classify('wav_files/DM.wav', tc) + '   expected: Dm')
-    print(classify('wav_files/F#.wav', tc) + '   expected: F#')
-    print(classify('wav_files/C_electric_guitar.wav', tc) + '   expected: C')
-    print(classify('wav_files/D_electric_guitar.wav', tc) + '   expected: D')
-    print(classify('wav_files/E_electric_guitar.wav', tc) + '   expected: E')
-    print(classify('wav_files/C_recorder.wav', tc) + '   expected: C')
-    print(classify('wav_files/D_recorder.wav', tc) + '   expected: D')
-    print(classify('wav_files/E_recorder.wav', tc) + '   expected: E')
-    print(classify('wav_files/cm_recorder.wav', tc) + '   expected: Cm')
-    print(classify('wav_files/dm_recorder.wav', tc) + '   expected: Dm')
-    print(classify('wav_files/em_recorder.wav', tc) + '   expected: Em')
-    print(classify('wav_files/C#_recorder.wav', tc) + '   expected: C#')
-    print(classify('wav_files/D#_recorder.wav', tc) + '   expected: D#')
-    print(classify('wav_files/F_brassy.wav', tc) + '   expected: F')
-    print(classify('wav_files/fm_brass.wav', tc) + '   expected: Fm')
-
-    print("Majority Vote")
-
-    print(mode_classify('wav_files/A.wav', tc2) + '   expected: A')
-    print(mode_classify('wav_files/DM.wav', tc2) + '   expected: Dm')
-    print(mode_classify('wav_files/F#.wav', tc2) + '   expected: F#')
-    print(mode_classify('wav_files/C_electric_guitar.wav', tc2) + '   expected: C')
-    print(mode_classify('wav_files/D_electric_guitar.wav', tc2) + '   expected: D')
-    print(mode_classify('wav_files/E_electric_guitar.wav', tc2) + '   expected: E')
-    print(mode_classify('wav_files/C_recorder.wav', tc2) + '   expected: C')
-    print(mode_classify('wav_files/D_recorder.wav', tc2) + '   expected: D')
-    print(mode_classify('wav_files/E_recorder.wav', tc2) + '   expected: E')
-    print(mode_classify('wav_files/cm_recorder.wav', tc2) + '   expected: Cm')
-    print(mode_classify('wav_files/dm_recorder.wav', tc2) + '   expected: Dm')
-    print(mode_classify('wav_files/em_recorder.wav', tc2) + '   expected: Em')
-    print(mode_classify('wav_files/C#_recorder.wav', tc2) + '   expected: C#')
-    print(mode_classify('wav_files/D#_recorder.wav', tc2) + '   expected: D#')
-    print(mode_classify('wav_files/F_brassy.wav', tc2) + '   expected: F')
-    print(mode_classify('wav_files/fm_brass.wav', tc2) + '   expected: Fm')
-
-    print("Combined Template Data")
-
-    tc, tc2 = template_prep_combined()
-
-    print("Mean")
-
-    print(classify('wav_files/A.wav', tc) + '   expected: A')
-    print(classify('wav_files/DM.wav', tc) + '   expected: Dm')
-    print(classify('wav_files/F#.wav', tc) + '   expected: F#')
-    print(classify('wav_files/C_electric_guitar.wav', tc) + '   expected: C')
-    print(classify('wav_files/D_electric_guitar.wav', tc) + '   expected: D')
-    print(classify('wav_files/E_electric_guitar.wav', tc) + '   expected: E')
-    print(classify('wav_files/C_recorder.wav', tc) + '   expected: C')
-    print(classify('wav_files/D_recorder.wav', tc) + '   expected: D')
-    print(classify('wav_files/E_recorder.wav', tc) + '   expected: E')
-    print(classify('wav_files/cm_recorder.wav', tc) + '   expected: Cm')
-    print(classify('wav_files/dm_recorder.wav', tc) + '   expected: Dm')
-    print(classify('wav_files/em_recorder.wav', tc) + '   expected: Em')
-    print(classify('wav_files/C#_recorder.wav', tc) + '   expected: C#')
-    print(classify('wav_files/D#_recorder.wav', tc) + '   expected: D#')
-    print(classify('wav_files/F_brassy.wav', tc) + '   expected: F')
-    print(classify('wav_files/fm_brass.wav', tc) + '   expected: Fm')
-
-    print("Majority Vote")
-
-    print(mode_classify('wav_files/A.wav', tc2) + '   expected: A')
-    print(mode_classify('wav_files/DM.wav', tc2) + '   expected: Dm')
-    print(mode_classify('wav_files/F#.wav', tc2) + '   expected: F#')
-    print(mode_classify('wav_files/C_electric_guitar.wav', tc2) + '   expected: C')
-    print(mode_classify('wav_files/D_electric_guitar.wav', tc2) + '   expected: D')
-    print(mode_classify('wav_files/E_electric_guitar.wav', tc2) + '   expected: E')
-    print(mode_classify('wav_files/C_recorder.wav', tc2) + '   expected: C')
-    print(mode_classify('wav_files/D_recorder.wav', tc2) + '   expected: D')
-    print(mode_classify('wav_files/E_recorder.wav', tc2) + '   expected: E')
-    print(mode_classify('wav_files/cm_recorder.wav', tc2) + '   expected: Cm')
-    print(mode_classify('wav_files/dm_recorder.wav', tc2) + '   expected: Dm')
-    print(mode_classify('wav_files/em_recorder.wav', tc2) + '   expected: Em')
-    print(mode_classify('wav_files/C#_recorder.wav', tc2) + '   expected: C#')
-    print(mode_classify('wav_files/D#_recorder.wav', tc2) + '   expected: D#')
-    print(mode_classify('wav_files/F_brassy.wav', tc2) + '   expected: F')
+    print(mode_classify('wav_files/A.wav', tc_frames) + '   expected: A')
+    print(mode_classify('wav_files/DM.wav', tc_frames) + '   expected: Dm')
+    print(mode_classify('wav_files/F#.wav', tc_frames) + '   expected: F#')
+    mode_results = accuracy(expected, mode_classify)
 
     print("Chord Sequence")
 
-    tc, tc2 = template_prep()
-
-    print(str(classify_sequence('wav_files/chords_piano_equal.wav', tc)) + " (actual)")
+    print(str(classify_sequence('wav_files/chords_piano_equal.wav', tc_means)) + " (actual)")
     print("['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm', 'Cm'] (expected)")
