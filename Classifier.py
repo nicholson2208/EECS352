@@ -196,11 +196,11 @@ if __name__ == '__main__':
 
     print("Nottingham")
 
-    cpe = str(classify_sequence('wav_files/Nottingham/ashover1.wav', tc_means, 512))
-    print("(ashover) " + str(classify_sequence('wav_files/Nottingham/ashover1.wav', tc_means, 512)))
+    cpe = classify_sequence('wav_files/Nottingham/ashover1_higher_octave.wav', tc_means, 512)
+    print("(ashover pitch-shifted with original timbre) " + str(cpe))
     count = 0
-    actual = ['G', 'D', 'G', 'D', 'G', 'D', 'F', 'G', 'G', 'D', 'G', 'D', 'G', 'D', 'F', 'G', 'C', 'Bb', 'F', 'C', 'Bb',
-              'F', 'G', 'C', 'Bb', 'F', 'C', 'Bb', 'F', 'G']
+    actual = ['G', 'D', 'G', 'D', 'G', 'D', 'F', 'G', 'G', 'D', 'G', 'D', 'G', 'D', 'F', 'G', 'C', 'A#', 'F', 'C', 'A#',
+              'F', 'G', 'C', 'A#', 'F', 'C', 'A#', 'F', 'G']
     for i in range(len(actual)):
         if cpe[i + 1] == actual[i]:
             count += 1
