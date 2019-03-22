@@ -196,12 +196,13 @@ if __name__ == '__main__':
 
     print("Nottingham")
 
-    cpe = classify_sequence('wav_files/Nottingham/ashover1_higher_octave.wav', tc_means, 512)
-    print("(ashover pitch-shifted with original timbre) " + str(cpe))
+    cpe = classify_sequence('wav_files/Nottingham/ashover1_higher_octave_piano_equal.wav', tc_means, 512)
+    print("(ashover octave-shifted with new timbre) " + str(cpe))
     count = 0
     actual = ['G', 'D', 'G', 'D', 'G', 'D', 'F', 'G', 'G', 'D', 'G', 'D', 'G', 'D', 'F', 'G', 'C', 'A#', 'F', 'C', 'A#',
               'F', 'G', 'C', 'A#', 'F', 'C', 'A#', 'F', 'G']
     for i in range(len(actual)):
+        # ignore the window that occurs before the first onset
         if cpe[i + 1] == actual[i]:
             count += 1
     print(str(count) + " / " + str(len(actual)))
